@@ -21,6 +21,11 @@ public class CustomImageListAdapter extends ArrayAdapter<String> {
 //    private final String[] itemname;
     private final ArrayList<String> mMovieData;
 
+    /**
+     *
+     * @param context
+     * @param movieData Comprised of "movie id" and "/poster art image name."
+     */
     public CustomImageListAdapter(Activity context, ArrayList<String> movieData) {
 //    public CustomImageListAdapter(Activity context, String[] itemname) {
         super(context, R.layout.list_movie_item, movieData);
@@ -55,13 +60,16 @@ public class CustomImageListAdapter extends ArrayAdapter<String> {
 //
 //    }
 
+    /**
+     * Look up poster for movie id.
+     * @param imgMovie
+     * @param aPosterPath
+     */
     private void setImage(ImageView imgMovie, String aPosterPath) {
-        // TO DO: Look up poster for movie id.
         Picasso.with(
                 context)
                 .load("http://image.tmdb.org/t/p/w185/" + aPosterPath)
 //                .load("http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg")
-                        .resize(100, 100)
                 .into(imgMovie);
     }
 }

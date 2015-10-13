@@ -10,4 +10,5 @@
     <string-array name="image_test_urls">
         <item>http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg</item>
     </string-array>
+    <string name="title_activity_detail_movie">DetailMovieActivity</string>
 </resources>

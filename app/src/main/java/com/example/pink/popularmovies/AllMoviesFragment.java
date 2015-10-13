@@ -1,5 +1,6 @@
 package com.example.pink.popularmovies;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -101,35 +103,27 @@ public class AllMoviesFragment extends Fragment {
         }
     }
 
-    // Prepare some dummy data for gridview
-    private ArrayList<ImageItem> getData() {
-        final ArrayList<ImageItem> imageItems = new ArrayList<>();
-        TypedArray imgs = getResources().obtainTypedArray(R.array.image_test_urls);
-        int lengthTest = 13;
-        for (int i = 0; i < lengthTest; i++) {
-//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imgs.getResourceId(i, -1));
-            imageItems.add(new ImageItem(imgs.getString(i), "Image#" + i));
-        }
-        return imageItems;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onCreateView");
 
-        // TO DO: Query for movie titles and IDs? to get poster.
         mAllMoviesAdapter = new CustomImageListAdapter(getActivity(),
-//                mMovieIds);
-//                new String []{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"});
                 new ArrayList<String>());
-// ListView Implementation
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//        ListView listViewAllMovies = (ListView) rootView.findViewById(R.id.fragment_main_listview);
-//        listViewAllMovies.setAdapter(adapter);
-// GridView implementation
         GridView gridViewAllMovies = (GridView) rootView.findViewById(R.id.fragment_main_gridview);
         gridViewAllMovies.setAdapter(mAllMoviesAdapter);
+        // Link the adapter with the GridView.
+        gridViewAllMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String movieId = mAllMoviesAdapter.getItem(position);
+                movieId = movieId.substring(0, movieId.indexOf(","));
+                Intent intent = new Intent(getActivity(), DetailMovieActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, movieId);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -181,7 +175,6 @@ public class AllMoviesFragment extends Fragment {
 
         protected String[] doInBackground(String... params) {
             // http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=ec842fdd2a58bc4d60d0e08a6576cb52
-            // TO DO: Use my API key
             String[] popularMovies = null;
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -258,10 +251,6 @@ public class AllMoviesFragment extends Fragment {
 
             // Retrieve popular movies data.
             try {
-//                List<String> listMovies = getPopularMoviesIdsFromJson(popularMoviesJsonString);
-//                String[] result = new String[listMovies.size()];
-//                result = listMovies.toArray(result);
-//                return result;
                 String[] result = getPopularMoviesIdsFromJson(popularMoviesJsonString);
                 mMovieIds = result;
                 return result;
@@ -274,14 +263,13 @@ public class AllMoviesFragment extends Fragment {
         }
 
         /**
-         * Take the String representing the complete forecast in JSON Format and
+         * Take the String representing the complete movies query result in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
          *
-         * Fortunately parsing is easy:  constructor takes the JSON string and converts it
+         * Constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
         private String[] getPopularMoviesIdsFromJson(String popularMoviesJsonStr)
-//        private List<String> getPopularMoviesIdsFromJson(String popularMoviesJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -307,20 +295,12 @@ public class AllMoviesFragment extends Fragment {
 
                 movieId = movie.getString(MOVIEDB_ID);
                 posterPath = movie.getString(MOVIEDB_POSTER_PATH);
-//                resultStrs.add(movieId);
                 result[i] = movieId + ", " + posterPath;
             }
 
             for (String s : result) {
-//            for (String s : resultStrs) {
                 Log.v(LOG_TAG, "Movie id: " + s);
             }
-//            return resultStrs;
-//            List<String> listMovies = getPopularMoviesIdsFromJson(popularMoviesJsonString);
-//            String[] result = new String[listMovies.size()];
-//            result = listMovies.toArray(result);
-//            String[] result = new String[resultStrs.size()];
-//            result = resultStrs.toArray(result);
             return result;
         }
 

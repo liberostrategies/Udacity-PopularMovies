@@ -42,7 +42,7 @@ public class ImageItem {
         Picasso.with(
                 context)
                 .load(mImageUrl)//"http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg")
-                .resize(100, 100)
+//                .resize(100, 100)
                 .into(imgView);
         Log.i(LOG_TAG, "Got movie from Picasso");
 
