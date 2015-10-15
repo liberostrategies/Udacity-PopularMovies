@@ -43,6 +43,11 @@ public class DetailMovieActivityFragment extends Fragment {
     protected final static int IDX_RELEASE_DATE = 2;
     protected final static int IDX_VOTE_AVERAGE = 3;
     protected final static int IDX_PLOT_SYNOPSIS = 4;
+    TextView mTitle;
+    ImageView mImageViewPoster;
+    TextView mReleaseDate;
+    TextView mVoteAverage;
+    TextView mPlotSynopsis;
 
     private Activity context;
 
@@ -66,20 +71,28 @@ public class DetailMovieActivityFragment extends Fragment {
         // Read the intent from the all movies grid view item selection.
         Intent intent = getActivity().getIntent();
         View rootView = inflater.inflate(R.layout.fragment_detail_movie, container, false);
+
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) ) {
             // TO DO: Query for movie details in a thread in case network request blocks.
             mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
-//            fetchMovieDetails();
-            fetchMyMovieDetails(mMovieId);
-            ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovieId);
-            ((TextView) rootView.findViewById(R.id.title)).setText(mMovieDetails[IDX_TITLE]);
-            ImageView imageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);
-            String posterPath = mMovieDetails[IDX_POSTER_PATH];
-            setImage(imageViewPoster, posterPath);
-            ((TextView) rootView.findViewById(R.id.release_date)).setText(mMovieDetails[IDX_RELEASE_DATE]);
-            ((TextView) rootView.findViewById(R.id.vote_average)).setText(mMovieDetails[IDX_VOTE_AVERAGE]);
-            ((TextView) rootView.findViewById(R.id.plot_synopsis)).setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
+            fetchMovieDetails();
+//            fetchMyMovieDetails(mMovieId);
+//            ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovieId);
+            mTitle = (TextView) rootView.findViewById(R.id.title);
+            mImageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);
+            mReleaseDate = (TextView) rootView.findViewById(R.id.release_date);
+            mVoteAverage = (TextView) rootView.findViewById(R.id.vote_average);
+            mPlotSynopsis = (TextView) rootView.findViewById(R.id.plot_synopsis);
+
+//            ((TextView) rootView.findViewById(R.id.title)).setText(mMovieDetails[IDX_TITLE]);
+//            ImageView imageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);
+//            String posterPath = mMovieDetails[IDX_POSTER_PATH];
+//            setImage(imageViewPoster, posterPath);
+//            ((TextView) rootView.findViewById(R.id.release_date)).setText(mMovieDetails[IDX_RELEASE_DATE]);
+//            ((TextView) rootView.findViewById(R.id.vote_average)).setText(mMovieDetails[IDX_VOTE_AVERAGE]);
+//            ((TextView) rootView.findViewById(R.id.plot_synopsis)).setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
         }
+
         return rootView;
     }
 
@@ -351,12 +364,19 @@ public class DetailMovieActivityFragment extends Fragment {
         /**
          * Update the detail view with the background return strings of live data.
          */
-/*
+
         protected void onPostExecute(String[] result) {
+            Log.d(LOG_TAG, "post execute result=" + result);
             if (result != null) {
                 mMovieDetails = result;
+                mTitle.setText(mMovieDetails[IDX_TITLE]);
+                String posterPath = mMovieDetails[IDX_POSTER_PATH];
+                setImage(mImageViewPoster, posterPath);
+                mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
+                mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
+                mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
            }
         }
-*/
+
     }
 }
