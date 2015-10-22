@@ -73,24 +73,14 @@ public class DetailMovieActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_detail_movie, container, false);
 
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) ) {
-            // TO DO: Query for movie details in a thread in case network request blocks.
+            // Query for movie details in a thread in case network request blocks.
             mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
             fetchMovieDetails();
-//            fetchMyMovieDetails(mMovieId);
-//            ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovieId);
             mTitle = (TextView) rootView.findViewById(R.id.title);
             mImageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);
             mReleaseDate = (TextView) rootView.findViewById(R.id.release_date);
             mVoteAverage = (TextView) rootView.findViewById(R.id.vote_average);
             mPlotSynopsis = (TextView) rootView.findViewById(R.id.plot_synopsis);
-
-//            ((TextView) rootView.findViewById(R.id.title)).setText(mMovieDetails[IDX_TITLE]);
-//            ImageView imageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);
-//            String posterPath = mMovieDetails[IDX_POSTER_PATH];
-//            setImage(imageViewPoster, posterPath);
-//            ((TextView) rootView.findViewById(R.id.release_date)).setText(mMovieDetails[IDX_RELEASE_DATE]);
-//            ((TextView) rootView.findViewById(R.id.vote_average)).setText(mMovieDetails[IDX_VOTE_AVERAGE]);
-//            ((TextView) rootView.findViewById(R.id.plot_synopsis)).setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
         }
 
         return rootView;
@@ -318,48 +308,6 @@ public class DetailMovieActivityFragment extends Fragment {
             return null;
         }
 
-
-        /**
-         * Take the String representing the complete movies query result in JSON Format and
-         * pull out the data we need to construct the Strings needed for the wireframes.
-         *
-         * Constructor takes the JSON string and converts it
-         * into an Object hierarchy for us.
-         */
-/*
-        private String[] getPopularMovieDetailsFromJson(String popularMoviesJsonStr)
-                throws JSONException {
-
-            // These are the names of the JSON objects that need to be extracted.
-            final String MOVIEDB_ID = "id";
-            final String MOVIEDB_TITLE = "original_title";
-            final String MOVIEDB_POSTER_PATH = "poster_path";
-            final String MOVIEDB_RELEASE_DATE = "release_date";
-            final String MOVIEDB_VOTE_AVERAGE = "vote_average";
-            final String MOVIEDB_PLOT_SYNOPSIS = "overview";
-
-            JSONObject movieDetailsJson = new JSONObject(popularMoviesJsonStr);
-            String title = movieDetailsJson.getString(MOVIEDB_TITLE);
-            String posterPath = movieDetailsJson.getString(MOVIEDB_POSTER_PATH);
-            String releaseDate = movieDetailsJson.getString(MOVIEDB_RELEASE_DATE);
-            String voteAverage = movieDetailsJson.getString(MOVIEDB_VOTE_AVERAGE);
-            String plotSynopsis = movieDetailsJson.getString(MOVIEDB_PLOT_SYNOPSIS);
-
-            List<String> resultStrs = new ArrayList<String>();
-            int countData = 5;
-            String[] result = new String[countData];
-            result[IDX_TITLE] = title;
-            result[IDX_POSTER_PATH] = posterPath;
-            result[IDX_RELEASE_DATE] = releaseDate;
-            result[IDX_VOTE_AVERAGE] = voteAverage;
-            result[IDX_PLOT_SYNOPSIS] = plotSynopsis;
-
-            for (String s : result) {
-                Log.v(LOG_TAG, "Movie data: " + s);
-            }
-            return result;
-        }
-*/
   //      @Override
         /**
          * Update the detail view with the background return strings of live data.

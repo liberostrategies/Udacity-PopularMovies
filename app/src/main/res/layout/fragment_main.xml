@@ -4,20 +4,10 @@
     android:layout_height="match_parent"
     tools:context="com.example.pink.popularmovies.AllMoviesFragment">
 
-    <!-- Works
-    <ListView
+    <GridView
+        android:id="@+id/fragment_main_gridview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/fragment_main_listview">
-    </ListView>
-    -->
-
-        <GridView
-            android:id="@+id/fragment_main_gridview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="3"
-            >
-        </GridView>
+        android:layout_height="match_parent"
+        android:numColumns="3" />
 
 </FrameLayout>
