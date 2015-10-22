@@ -111,7 +111,7 @@ public class DetailMovieActivityFragment extends Fragment {
         String apiKey = "ec842fdd2a58bc4d60d0e08a6576cb52";
         try {
             // Construct the URL for the api.themoviedb.org query
-            // Possible parameters are avaiable at API page, at
+            // Possible parameters are available at API page, at
             // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
             final String MOVIEDETAILS_BASE_URL =
                     "http://api.themoviedb.org/3/movie/" + mMovieId + "?";

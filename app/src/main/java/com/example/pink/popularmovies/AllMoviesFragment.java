@@ -175,6 +175,9 @@ public class AllMoviesFragment extends Fragment {
 
         protected String[] doInBackground(String... params) {
             // http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+            // http://api.themoviedb.org/3/movie/popular?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+            // http://api.themoviedb.org/3/movie/top_rated?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+
             String[] popularMovies = null;
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -186,20 +189,23 @@ public class AllMoviesFragment extends Fragment {
 
             String format = "json";
             String sortBy = "popularity.desc";
+            // Read sort by from preferences.
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String sortByPref = sharedPref.getString(getString(R.string.sort_by_list_key),
+                    getString(R.string.pref_sort_by_default_value));
+
             String apiKey = "ec842fdd2a58bc4d60d0e08a6576cb52";
             try {
                 // Construct the URL for the api.themoviedb.org query
                 // Possible parameters are avaiable at API page, at
                 // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
                 final String POPULARMOVIES_BASE_URL =
-                        "http://api.themoviedb.org/3/discover/movie?";
-                final String SORT_BY_PARAM = "sort_by";
+                        "http://api.themoviedb.org/3/movie";
                 final String API_KEY_PARAM = "api_key";
                 Uri builtUri = Uri.parse(POPULARMOVIES_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_BY_PARAM, params[0])
+                        .appendPath(sortByPref)
                         .appendQueryParameter(API_KEY_PARAM, apiKey)
                         .build();
-//                URL url = new URL("http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=ec842fdd2a58bc4d60d0e08a6576cb52");
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG, "Built URI " + builtUri.toString());
                 // Create the request to themoviedb, and open the connection

@@ -50,7 +50,7 @@ public class CustomImageListAdapter extends ArrayAdapter<String> {
         setImage(imageView, posterPath);
 
         String text = movieData.substring(0,idxComma);
-        txtTitle.setText(text);
+//        txtTitle.setText(text);
 //        txtTitle.setText(itemname[position]);
         return rowView;
 
