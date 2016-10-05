@@ -2,12 +2,10 @@ package com.example.pink.popularmovies;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.pink.popularmovies.util.ConfigPrivateUtil;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -84,89 +82,6 @@ public class DetailMovieActivityFragment extends Fragment {
         }
 
         return rootView;
-    }
-
-    private void fetchMyMovieDetails(String movieId) {
-        // http://api.themoviedb.org/3/movie/135397?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
-
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-
-        // Will contain the raw JSON response as a string.
-        String movieDetailsJsonString = null;
-
-        // TO DO: Make this api key constant for app.
-        String apiKey = "ec842fdd2a58bc4d60d0e08a6576cb52";
-        try {
-            // Construct the URL for the api.themoviedb.org query
-            // Possible parameters are available at API page, at
-            // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
-            final String MOVIEDETAILS_BASE_URL =
-                    "http://api.themoviedb.org/3/movie/" + mMovieId + "?";
-            final String API_KEY_PARAM = "api_key";
-            Uri builtUri = Uri.parse(MOVIEDETAILS_BASE_URL).buildUpon()
-                    .appendQueryParameter(API_KEY_PARAM, apiKey)
-                    .build();
-            URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-            // Create the request to themoviedb, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                Log.v(LOG_TAG, "Input stream was null");
-                return;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                Log.v(LOG_TAG, "Stream was empty. No point in parsing.");
-                return;
-            }
-            movieDetailsJsonString = buffer.toString();
-            //Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
-
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the popular movies data, there's no point in attemping
-            // to parse it.
-            return;
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
-            }
-        }
-
-        // Retrieve popular movies data.
-        try {
-            String[] result = getPopularMovieDetailsFromJson(movieDetailsJsonString);
-            mMovieDetails = result;
-        } catch (JSONException je) {
-            Log.e(LOG_TAG, "Error", je);
-        }
     }
 
     /**
@@ -237,8 +152,16 @@ public class DetailMovieActivityFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieDetailsJsonString = null;
 
-            // TO DO: Make this api key constant for app.
-            String apiKey = "ec842fdd2a58bc4d60d0e08a6576cb52";
+            // Get api key from externalized non-publicly distributed file.
+            String apiKey = null;
+            try {
+                apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+            } catch (IOException ioe) {
+                Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
+            }
+            if (apiKey == null) {
+                return null;
+            }
             try {
                 // Construct the URL for the api.themoviedb.org query
                 // Possible parameters are avaiable at API page, at
