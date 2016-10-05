@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.pink.popularmovies.util.ConfigPrivateUtil;
+import com.example.pink.popularmovies.util.NetworkUtil;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -143,6 +144,12 @@ public class DetailMovieActivityFragment extends Fragment {
         @Override
         protected String[] doInBackground(String... params) {
             // http://api.themoviedb.org/3/movie/135397?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+
+            // Check if there is network connectivity.
+            if (!NetworkUtil.isOnline(context)) {
+                Log.d(LOG_TAG, "No network connectivity. Nothing will happen in the background.");
+                return null;
+            }
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
