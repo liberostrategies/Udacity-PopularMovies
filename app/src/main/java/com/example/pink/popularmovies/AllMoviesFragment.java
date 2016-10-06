@@ -91,7 +91,6 @@ public class AllMoviesFragment extends Fragment {
 
     private void fetchMovies() {
         FetchAllMoviesTask moviesTask = new FetchAllMoviesTask();
-        // TO DO: Read sort_by setting from preferences.
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortBy = sharedPref.getString("sortby", "popularity.desc");
         moviesTask.execute(sortBy);
