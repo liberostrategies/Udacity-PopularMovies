@@ -50,6 +50,8 @@ public class DetailMovieActivityFragment extends Fragment {
 
     private Activity context;
 
+    private String apiKey;
+
     public DetailMovieActivityFragment() {
     }
 
@@ -160,13 +162,12 @@ public class DetailMovieActivityFragment extends Fragment {
             String movieDetailsJsonString = null;
 
             // Get api key from externalized non-publicly distributed file.
-            String apiKey = null;
             try {
-                apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+                if (apiKey == null) {
+                    apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+                }
             } catch (IOException ioe) {
                 Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
-            }
-            if (apiKey == null) {
                 return null;
             }
             try {
