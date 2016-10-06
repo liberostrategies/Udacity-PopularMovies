@@ -2,7 +2,6 @@ package com.example.pink.popularmovies;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.example.pink.popularmovies.util.ConfigPrivateUtil;
+import com.example.pink.popularmovies.util.NetworkUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +40,8 @@ import java.util.List;
  */
 public class AllMoviesFragment extends Fragment {
     private final String LOG_TAG = AllMoviesFragment.class.getSimpleName();
+
+    private String apiKey;
 
     /**
      * Adapter linking all movies data to its grid list view.
@@ -178,6 +182,12 @@ public class AllMoviesFragment extends Fragment {
             // http://api.themoviedb.org/3/movie/popular?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
             // http://api.themoviedb.org/3/movie/top_rated?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
 
+            // Check if there is network connectivity.
+            if (!NetworkUtil.isOnline(getActivity().getBaseContext())) {
+                Log.d(LOG_TAG, "No network connectivity. Nothing will happen in the background.");
+                return null;
+            }
+
             String[] popularMovies = null;
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -194,7 +204,15 @@ public class AllMoviesFragment extends Fragment {
             String sortByPref = sharedPref.getString(getString(R.string.sort_by_list_key),
                     getString(R.string.pref_sort_by_default_value));
 
-            String apiKey = "ec842fdd2a58bc4d60d0e08a6576cb52";
+            // Get api key from externalized non-publicly distributed file.
+            try {
+                if (apiKey == null) {
+                    apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+                }
+            } catch (IOException ioe) {
+                Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
+                return null;
+            }
             try {
                 // Construct the URL for the api.themoviedb.org query
                 // Possible parameters are avaiable at API page, at
