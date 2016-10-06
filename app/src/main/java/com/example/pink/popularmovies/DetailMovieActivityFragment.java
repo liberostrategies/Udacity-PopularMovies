@@ -254,7 +254,9 @@ public class DetailMovieActivityFragment extends Fragment {
                 mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
                 mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
                 mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
-           }
+            } else {
+                mTitle.setText("Network Connectivity Lost");
+            }
         }
 
     }
