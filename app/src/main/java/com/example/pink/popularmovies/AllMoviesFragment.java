@@ -41,6 +41,8 @@ import java.util.List;
 public class AllMoviesFragment extends Fragment {
     private final String LOG_TAG = AllMoviesFragment.class.getSimpleName();
 
+    private String apiKey;
+
     /**
      * Adapter linking all movies data to its grid list view.
      */
@@ -203,13 +205,12 @@ public class AllMoviesFragment extends Fragment {
                     getString(R.string.pref_sort_by_default_value));
 
             // Get api key from externalized non-publicly distributed file.
-            String apiKey = null;
             try {
-                apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+                if (apiKey == null) {
+                    apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
+                }
             } catch (IOException ioe) {
                 Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
-            }
-            if (apiKey == null) {
                 return null;
             }
             try {
