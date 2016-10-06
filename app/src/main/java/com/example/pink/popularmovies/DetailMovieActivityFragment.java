@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.example.pink.popularmovies.util.ConfigPrivateUtil;
 import com.example.pink.popularmovies.util.NetworkUtil;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +27,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.pink.popularmovies.util.ImageUtil.setImage;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -125,19 +126,6 @@ public class DetailMovieActivityFragment extends Fragment {
             Log.v(LOG_TAG, "Movie data: " + s);
         }
         return result;
-    }
-
-    /**
-     * Look up poster for movie id.
-     * @param imgMovie
-     * @param aPosterPath
-     */
-    private void setImage(ImageView imgMovie, String aPosterPath) {
-        Picasso.with(
-                context)
-                .load("http://image.tmdb.org/t/p/w185/" + aPosterPath)
-//                .load("http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg")
-                .into(imgMovie);
     }
 
     public class FetchMovieDetails extends AsyncTask<String, Void, String[]> {
@@ -250,7 +238,7 @@ public class DetailMovieActivityFragment extends Fragment {
                 mMovieDetails = result;
                 mTitle.setText(mMovieDetails[IDX_TITLE]);
                 String posterPath = mMovieDetails[IDX_POSTER_PATH];
-                setImage(mImageViewPoster, posterPath);
+                setImage(context, mImageViewPoster, posterPath);
                 mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
                 mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
                 mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);

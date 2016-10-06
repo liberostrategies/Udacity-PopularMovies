@@ -1,13 +1,7 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.pink.popularmovies.AllMoviesFragment">
-
-    <GridView
-        android:id="@+id/fragment_main_gridview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="3" />
-
-</FrameLayout>
+    tools:context="com.example.pink.popularmovies.AllMoviesFragment"
+    android:id="@+id/fragment_main_gridview"
+    android:numColumns="3" />
