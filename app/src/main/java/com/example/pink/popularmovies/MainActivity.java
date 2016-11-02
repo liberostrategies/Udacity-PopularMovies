@@ -19,7 +19,13 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new AllMoviesFragment())
                     .commit();
         }
-        Stetho.initializeWithDefaults(this);
+        if (BuildConfig.DEBUG) {
+            Stetho.initialize(
+                    Stetho.newInitializerBuilder(this)
+                            .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                            .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                            .build());
+        }
     }
 
     @Override
