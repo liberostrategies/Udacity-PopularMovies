@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.stetho.Stetho;
+
 public class MainActivity extends ActionBarActivity {
 
     @Override
@@ -17,6 +19,7 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new AllMoviesFragment())
                     .commit();
         }
+        Stetho.initializeWithDefaults(this);
     }
 
     @Override
