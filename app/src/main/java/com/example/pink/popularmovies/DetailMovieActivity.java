@@ -1,7 +1,8 @@
 package com.example.pink.popularmovies;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -11,6 +12,19 @@ public class DetailMovieActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_movie);
+        if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+            Bundle arguments = new Bundle();
+            arguments.putString(DetailMovieActivityFragment.DETAIL_MOVIE_ID, getIntent().getExtras().getString(Intent.EXTRA_TEXT));
+
+            DetailMovieActivityFragment fragment = new DetailMovieActivityFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment, fragment)
+                    .commit();
+        }
     }
 
 

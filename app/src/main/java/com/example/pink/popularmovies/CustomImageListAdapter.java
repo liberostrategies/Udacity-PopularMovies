@@ -48,5 +48,4 @@ public class CustomImageListAdapter extends ArrayAdapter<String> {
         return rowView;
 
     }
-
 }

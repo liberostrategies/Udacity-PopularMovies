@@ -1,7 +1,6 @@
 package com.example.pink.popularmovies;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -53,6 +52,8 @@ public class DetailMovieActivityFragment extends Fragment {
 
     private String apiKey;
 
+    static final String DETAIL_MOVIE_ID = "MOVIEID";
+
     public DetailMovieActivityFragment() {
     }
 
@@ -71,12 +72,15 @@ public class DetailMovieActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         this.context = this.getActivity();
         // Read the intent from the all movies grid view item selection.
-        Intent intent = getActivity().getIntent();
+//        Intent intent = getActivity().getIntent();
+        Bundle arguments = getArguments();
         View rootView = inflater.inflate(R.layout.fragment_detail_movie, container, false);
 
-        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) ) {
+//        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) ) {
+        if (arguments != null) {
             // Query for movie details in a thread in case network request blocks.
-            mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
+//            mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
+            mMovieId = arguments.getString(DetailMovieActivityFragment.DETAIL_MOVIE_ID);
             fetchMovieDetails();
             mTitle = (TextView) rootView.findViewById(R.id.title);
             mImageViewPoster = (ImageView) rootView.findViewById(R.id.poster_path);

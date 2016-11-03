@@ -1,6 +1,5 @@
 package com.example.pink.popularmovies;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -106,6 +105,18 @@ public class AllMoviesFragment extends Fragment {
         }
     }
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String movieId);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -122,9 +133,12 @@ public class AllMoviesFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String movieId = mAllMoviesAdapter.getItem(position);
                 movieId = movieId.substring(0, movieId.indexOf(","));
-                Intent intent = new Intent(getActivity(), DetailMovieActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, movieId);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), DetailMovieActivity.class)
+//                        .putExtra(Intent.EXTRA_TEXT, movieId);
+//                startActivity(intent);
+//
+                ((Callback) getActivity())
+                        .onItemSelected(movieId);
             }
         });
 
