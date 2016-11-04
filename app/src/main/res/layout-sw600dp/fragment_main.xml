@@ -10,8 +10,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragment_main_gridview"
-    android:numColumns="2"
+    android:numColumns="auto_fit"
     android:gravity="center"
-    android:columnWidth="200dp"
- />
+    android:columnWidth="150dp" />
 </FrameLayout>

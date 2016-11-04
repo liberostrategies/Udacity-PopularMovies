@@ -20,8 +20,6 @@ public class ImageUtil {
                 context)
                 .load("http://image.tmdb.org/t/p/w185/" + aPosterPath)
 //                .load("http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg")
-                .resize(600,600)
-                .centerInside()
                 .into(imgMovie);
     }
 }
