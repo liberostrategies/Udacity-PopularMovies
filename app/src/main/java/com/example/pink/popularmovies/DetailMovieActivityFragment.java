@@ -9,8 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.example.pink.popularmovies.util.ImageUtil.setImage;
@@ -142,20 +143,6 @@ public class DetailMovieActivityFragment extends Fragment {
 
             fetchTrailerVideos();
             mListViewTrailers = (ListView) rootView.findViewById(R.id.listview_trailers);
-            mTrailerAdapter = new TrailerAdapter(
-                    getActivity(),
-                    null,
-                    0
-            );
-            mListViewTrailers.setAdapter(mTrailerAdapter);
-            mListViewTrailers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    // TO DO: Get url.
-                    Log.d(LOG_TAG, "Clicked moview trailer, position=" + position + " + url = " + mTrailerVideoUrls[position]);
-                    // TO DO: Set explicit intent? to launch browser/youtube to play video.
-                }
-            });
         }
 
         return rootView;
@@ -292,16 +279,54 @@ public class DetailMovieActivityFragment extends Fragment {
             Log.d(LOG_TAG, "post execute result=" + strings);
             if (strings != null) {
                 mTrailerVideoUrls = strings;
-//                mTitle.setText(mMovieDetails[IDX_TITLE]);
-//                String posterPath = mMovieDetails[IDX_POSTER_PATH];
-//                setImage(context, mImageViewPoster, posterPath);
-//                mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
-//                mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
-//                mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
+                if (mTrailerAdapter == null) {
+                    mTrailerAdapter = new TrailerAdapter(
+                            getActivity(),
+                            new ArrayList<String>(Arrays.asList(mTrailerVideoUrls))
+                    );
+                    mListViewTrailers.setAdapter(mTrailerAdapter);
+                    setListViewHeightBasedOnChildren(mListViewTrailers);
+                    mTrailerAdapter.notifyDataSetChanged();
+                }
             } else {
                 mTitle.setText("Network Connectivity Lost");
             }
         }
+    }
+
+    /**
+     * Snipped from http://stackoverflow.com/questions/27646209/disable-scrolling-for-listview-and-enable-for-whole-layout.
+     * @param listView
+     */
+    public static void setListViewHeightBasedOnChildren(ListView listView)
+    {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+        int totalHeight=0;
+        View view = null;
+
+        for (int i = 0; i < listAdapter.getCount(); i++)
+        {
+            view = listAdapter.getView(i, view, listView);
+
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + ((listView.getDividerHeight()) * (listAdapter.getCount()));
+
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+
     }
 
     public class FetchMovieDetails extends AsyncTask<String, Void, String[]> {

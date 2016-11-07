@@ -60,22 +60,16 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center" />
 
-            <LinearLayout
-                android:orientation="vertical"
+        <TextView
+            android:text="@string/label_trailers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtTrailersLabel" />
+
+        <ListView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:text="@string/label_trailers"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/txtTrailersLabel" />
-
-                <ListView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/listview_trailers" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:id="@+id/listview_trailers"/>
 
     </LinearLayout>
 
