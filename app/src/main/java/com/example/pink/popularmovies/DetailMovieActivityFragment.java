@@ -9,11 +9,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.pink.popularmovies.util.NetworkUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +39,7 @@ public class DetailMovieActivityFragment extends Fragment {
     private static final String LOG_TAG = DetailMovieActivityFragment.class.getSimpleName();
     private String mMovieId;
     private String[] mMovieDetails;
+    private String[] mTrailerVideoUrls;
     protected final static int IDX_TITLE = 0;
     protected final static int IDX_POSTER_PATH = 1;
     protected final static int IDX_RELEASE_DATE = 2;
@@ -46,12 +50,21 @@ public class DetailMovieActivityFragment extends Fragment {
     TextView mReleaseDate;
     TextView mVoteAverage;
     TextView mPlotSynopsis;
+    ListView mListViewTrailers;
 
     private Activity context;
 
-    private String apiKey;
+    private String mApiKey = BuildConfig.THEMOVIEDB_API_KEY;
 
     static final String DETAIL_MOVIE_ID = "MOVIEID";
+
+    // Construct the URL for the api.themoviedb.org query
+    // Possible parameters are avaiable at API page, at
+    // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
+    private String mMovieDetailsBaseUrl;
+    final String API_KEY_PARAM = "api_key";
+    Uri mBuiltUri;
+    private TrailerAdapter mTrailerAdapter;
 
     public DetailMovieActivityFragment() {
     }
@@ -66,8 +79,47 @@ public class DetailMovieActivityFragment extends Fragment {
         moviesTask.execute(mMovieId);
     }
 
-    private void fetchTrailerVideo() {
+    private void fetchTrailerVideos() {
+        FetchTrailerVideo trailerVideosTask = new FetchTrailerVideo();
+        trailerVideosTask.execute(mTrailerVideoUrls);
+    }
 
+    /**
+     * Take the String representing the complete trailer video query result in JSON Format and
+     * pull out the data we need to construct the Strings needed for the wireframes.
+     *
+     * Constructor takes the JSON string and converts it
+     * into an String array containing the trailer video URLS.
+     */
+    private String[] getTrailerVideoDetailsFromJson(String trailerVideoJsonStr)
+            throws JSONException {
+        // https://www.youtube.com/watch?v=bvu-zlR5A8Q
+
+        // These are the names of the JSON objects that need to be extracted.
+        final String MOVIEDB_RESULTS = "results";
+        final String MOVIEDB_SITE = "site";
+        final String MOVIEDB_KEY = "key";
+
+        JSONObject trailerVideoJson = new JSONObject(trailerVideoJsonStr);
+        JSONArray trailerVideoArray = trailerVideoJson.getJSONArray(MOVIEDB_RESULTS);
+
+        String site;
+        String key;
+        String trailerVideoUrl;
+        int numTrailerVideos = trailerVideoArray.length();
+        String[] trailerVideoUrls = new String[numTrailerVideos];
+
+        for (int i=0; i<numTrailerVideos; i++) {
+            trailerVideoUrl = "https://www.";
+            JSONObject trailerVideo = trailerVideoArray.getJSONObject(i);
+            site = trailerVideo.getString(MOVIEDB_SITE);
+            key = trailerVideo.getString(MOVIEDB_KEY);
+            trailerVideoUrl += (site + ".com/watch?v=" + key);
+            Log.d(LOG_TAG, "Video " + i + " url = " + trailerVideoUrl);
+            trailerVideoUrls[i] = trailerVideoUrl;
+        }
+
+        return trailerVideoUrls;
     }
 
     @Override
@@ -87,6 +139,23 @@ public class DetailMovieActivityFragment extends Fragment {
             mReleaseDate = (TextView) rootView.findViewById(R.id.release_date);
             mVoteAverage = (TextView) rootView.findViewById(R.id.vote_average);
             mPlotSynopsis = (TextView) rootView.findViewById(R.id.plot_synopsis);
+
+            fetchTrailerVideos();
+            mListViewTrailers = (ListView) rootView.findViewById(R.id.listview_trailers);
+            mTrailerAdapter = new TrailerAdapter(
+                    getActivity(),
+                    null,
+                    0
+            );
+            mListViewTrailers.setAdapter(mTrailerAdapter);
+            mListViewTrailers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // TO DO: Get url.
+                    Log.d(LOG_TAG, "Clicked moview trailer, position=" + position + " + url = " + mTrailerVideoUrls[position]);
+                    // TO DO: Set explicit intent? to launch browser/youtube to play video.
+                }
+            });
         }
 
         return rootView;
@@ -149,7 +218,89 @@ public class DetailMovieActivityFragment extends Fragment {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
+            // Will contain the raw JSON response as a string.
+            String trailerVideoJsonString = null;
+
+            mBuiltUri = Uri.parse(mMovieDetailsBaseUrl).buildUpon()
+                    .appendPath("videos")
+                    .appendQueryParameter(API_KEY_PARAM, mApiKey)
+                    .build();
+
+            try {
+                URL url = new URL(mBuiltUri.toString());
+                Log.v(LOG_TAG, "Built URI " + mBuiltUri.toString());
+                // Create the request to themoviedb, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                trailerVideoJsonString = buffer.toString();
+                Log.v(LOG_TAG, "Trailer Video JSON String: " + trailerVideoJsonString);
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the traviler video data, there's no point in attemping
+                // to parse it.
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+
+            // Retrieve trailer video data.
+            try {
+                String[] result = getTrailerVideoDetailsFromJson(trailerVideoJsonString);
+                return result;
+            } catch (JSONException je) {
+                Log.e(LOG_TAG, "Error", je);
+            }
+
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+            Log.d(LOG_TAG, "post execute result=" + strings);
+            if (strings != null) {
+                mTrailerVideoUrls = strings;
+//                mTitle.setText(mMovieDetails[IDX_TITLE]);
+//                String posterPath = mMovieDetails[IDX_POSTER_PATH];
+//                setImage(context, mImageViewPoster, posterPath);
+//                mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
+//                mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
+//                mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
+            } else {
+                mTitle.setText("Network Connectivity Lost");
+            }
         }
     }
 
@@ -174,21 +325,14 @@ public class DetailMovieActivityFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieDetailsJsonString = null;
 
-            // Get api key.
-            apiKey = BuildConfig.THEMOVIEDB_API_KEY;
+            mMovieDetailsBaseUrl = "http://api.themoviedb.org/3/movie/" + mMovieId + "?";
+            mBuiltUri = Uri.parse(mMovieDetailsBaseUrl).buildUpon()
+                    .appendQueryParameter(API_KEY_PARAM, mApiKey)
+                    .build();
 
             try {
-                // Construct the URL for the api.themoviedb.org query
-                // Possible parameters are avaiable at API page, at
-                // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
-                final String MOVIEDETAILS_BASE_URL =
-                        "http://api.themoviedb.org/3/movie/" + mMovieId + "?";
-                final String API_KEY_PARAM = "api_key";
-                Uri builtUri = Uri.parse(MOVIEDETAILS_BASE_URL).buildUpon()
-                        .appendQueryParameter(API_KEY_PARAM, apiKey)
-                        .build();
-                URL url = new URL(builtUri.toString());
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                URL url = new URL(mBuiltUri.toString());
+                Log.v(LOG_TAG, "Built URI " + mBuiltUri.toString());
                 // Create the request to themoviedb, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -246,11 +390,10 @@ public class DetailMovieActivityFragment extends Fragment {
             return null;
         }
 
-  //      @Override
+        @Override
         /**
          * Update the detail view with the background return strings of live data.
          */
-
         protected void onPostExecute(String[] result) {
             Log.d(LOG_TAG, "post execute result=" + result);
             if (result != null) {

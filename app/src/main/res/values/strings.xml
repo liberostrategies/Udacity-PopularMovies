@@ -11,6 +11,9 @@
     <string name="title_activity_detail_movie">Movie Details</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="label_trailers">Trailers</string>
+    <string name="label_trailer">Trailer</string>
+
     <!-- Strings related to Settings -->
     <string name="action_settings">Settings</string>
     <string name="action_sort_by">Sort By</string>

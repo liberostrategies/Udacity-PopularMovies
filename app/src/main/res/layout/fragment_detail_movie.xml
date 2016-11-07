@@ -1,65 +1,83 @@
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.pink.popularmovies.DetailMovieActivityFragment">
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:context="com.example.pink.popularmovies.DetailMovieActivityFragment">
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" >
+            <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/title"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:textColorHighlight="@android:color/background_dark" />
 
-                            <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:id="@+id/title"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentStart="true"
-                            android:layout_gravity="center"
-                            android:textColorHighlight="@android:color/background_dark" />
+            <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/release_date"
+            android:layout_below="@+id/detail_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
-                            <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:id="@+id/release_date"
-                            android:layout_below="@+id/detail_text"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentStart="true" />
+            <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/vote_average"
+            android:layout_below="@+id/release_date"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
-                            <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:id="@+id/vote_average"
-                            android:layout_below="@+id/release_date"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentStart="true" />
+            <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/plot_synopsis"
+            android:layout_below="@+id/vote_average"
+            android:layout_alignRight="@+id/poster_path"
+            android:layout_alignEnd="@+id/poster_path"
+            android:elegantTextHeight="true" />
 
-                            <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:id="@+id/plot_synopsis"
-                            android:layout_below="@+id/vote_average"
-                            android:layout_alignRight="@+id/poster_path"
-                            android:layout_alignEnd="@+id/poster_path"
-                            android:elegantTextHeight="true" />
+            <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:id="@+id/poster_path"
+            android:layout_above="@+id/detail_text"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center" />
 
-                            <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="300dp"
-                            android:id="@+id/poster_path"
-                            android:layout_above="@+id/detail_text"
-                            android:layout_centerHorizontal="true"
-                            android:layout_gravity="center" />
-                    </LinearLayout>
-            </ScrollView>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <!--</LinearLayout>-->
+                <TextView
+                    android:text="@string/label_trailers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtTrailersLabel" />
+
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/listview_trailers" />
+            </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
+
