@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.example.pink.popularmovies.util.ConfigPrivateUtil;
 import com.example.pink.popularmovies.util.NetworkUtil;
 
 import org.json.JSONArray;
@@ -217,15 +216,9 @@ public class AllMoviesFragment extends Fragment {
             String sortByPref = sharedPref.getString(getString(R.string.sort_by_list_key),
                     getString(R.string.pref_sort_by_default_value));
 
-            // Get api key from externalized non-publicly distributed file.
-            try {
-                if (apiKey == null) {
-                    apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
-                }
-            } catch (IOException ioe) {
-                Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
-                return null;
-            }
+            // Get api key.
+            apiKey = BuildConfig.THEMOVIEDB_API_KEY;
+
             try {
                 // Construct the URL for the api.themoviedb.org query
                 // Possible parameters are avaiable at API page, at

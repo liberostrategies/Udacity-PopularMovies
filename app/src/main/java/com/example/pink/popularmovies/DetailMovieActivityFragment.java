@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.pink.popularmovies.util.ConfigPrivateUtil;
 import com.example.pink.popularmovies.util.NetworkUtil;
 
 import org.json.JSONException;
@@ -67,19 +66,20 @@ public class DetailMovieActivityFragment extends Fragment {
         moviesTask.execute(mMovieId);
     }
 
+    private void fetchTrailerVideo() {
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         this.context = this.getActivity();
         // Read the intent from the all movies grid view item selection.
-//        Intent intent = getActivity().getIntent();
         Bundle arguments = getArguments();
         View rootView = inflater.inflate(R.layout.fragment_detail_movie, container, false);
 
-//        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) ) {
         if (arguments != null) {
             // Query for movie details in a thread in case network request blocks.
-//            mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
             mMovieId = arguments.getString(DetailMovieActivityFragment.DETAIL_MOVIE_ID);
             fetchMovieDetails();
             mTitle = (TextView) rootView.findViewById(R.id.title);
@@ -132,12 +132,33 @@ public class DetailMovieActivityFragment extends Fragment {
         return result;
     }
 
+    public class FetchTrailerVideo extends AsyncTask<String, Void, String[]> {
+        private final String LOG_TAG = FetchTrailerVideo.class.getSimpleName();
+        @Override
+        protected String[] doInBackground(String... params) {
+            // http://api.themoviedb.org/3/movie/135397/videos?api_key={MY_API_KEY}
+
+            // Check if there is network connectivity.
+            if (!NetworkUtil.isOnline(context)) {
+                Log.d(LOG_TAG, "No network connectivity. Nothing will happen in the background.");
+                return null;
+            }
+
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            return null;
+        }
+    }
+
     public class FetchMovieDetails extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchMovieDetails.class.getSimpleName();
 
         @Override
         protected String[] doInBackground(String... params) {
-            // http://api.themoviedb.org/3/movie/135397?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+            // http://api.themoviedb.org/3/movie/135397?api_key={MY_API_KEY}
 
             // Check if there is network connectivity.
             if (!NetworkUtil.isOnline(context)) {
@@ -153,15 +174,9 @@ public class DetailMovieActivityFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieDetailsJsonString = null;
 
-            // Get api key from externalized non-publicly distributed file.
-            try {
-                if (apiKey == null) {
-                    apiKey = ConfigPrivateUtil.getProperty(ConfigPrivateUtil.THEMOVIEDB_API, getActivity().getBaseContext());
-                }
-            } catch (IOException ioe) {
-                Log.e(LOG_TAG, "Failed to find config-private.properties property=" + ConfigPrivateUtil.THEMOVIEDB_API, ioe);
-                return null;
-            }
+            // Get api key.
+            apiKey = BuildConfig.THEMOVIEDB_API_KEY;
+
             try {
                 // Construct the URL for the api.themoviedb.org query
                 // Possible parameters are avaiable at API page, at
