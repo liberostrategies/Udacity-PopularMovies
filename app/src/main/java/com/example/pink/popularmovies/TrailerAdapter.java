@@ -63,10 +63,14 @@ public class TrailerAdapter extends ArrayAdapter {
     public static class ViewHolder {
         public final ImageButton btnPlayTrailerVideo;
         public final TextView trailerLabel;
+        public final TextView reviewAuthor;
+        public final TextView reviewContent;
 
         public ViewHolder(View view) {
             btnPlayTrailerVideo = (ImageButton) view.findViewById(R.id.btnPlayTrailerVideo);
             trailerLabel = (TextView) view.findViewById(R.id.txt_trailer_label);
+            reviewAuthor = (TextView) view.findViewById(R.id.txt_author);
+            reviewContent = (TextView) view.findViewById(R.id.txt_review_content);
         }
     }
 

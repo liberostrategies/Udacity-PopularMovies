@@ -41,6 +41,7 @@ public class DetailMovieActivityFragment extends Fragment {
     private String mMovieId;
     private String[] mMovieDetails;
     private String[] mTrailerVideoUrls;
+    private MovieReview[] mReviews;
     protected final static int IDX_TITLE = 0;
     protected final static int IDX_POSTER_PATH = 1;
     protected final static int IDX_RELEASE_DATE = 2;
@@ -52,6 +53,7 @@ public class DetailMovieActivityFragment extends Fragment {
     TextView mVoteAverage;
     TextView mPlotSynopsis;
     ListView mListViewTrailers;
+    ListView mListViewReviews;
 
     private Activity context;
 
@@ -63,9 +65,12 @@ public class DetailMovieActivityFragment extends Fragment {
     // Possible parameters are avaiable at API page, at
     // http://docs.themoviedb.apiary.io/#reference/configuration/configuration/get?console=1
     private String mMovieDetailsBaseUrl;
-    final String API_KEY_PARAM = "api_key";
+    private final String API_KEY_PARAM = "api_key";
+    private final String TRAILER_VIDEOS_PARAM = "videos";
+    private final String REVIEWS_PARAM = "reviews";
     Uri mBuiltUri;
     private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
 
     public DetailMovieActivityFragment() {
     }
@@ -83,6 +88,11 @@ public class DetailMovieActivityFragment extends Fragment {
     private void fetchTrailerVideos() {
         FetchTrailerVideo trailerVideosTask = new FetchTrailerVideo();
         trailerVideosTask.execute(mTrailerVideoUrls);
+    }
+
+    private void fetchReviews() {
+        FetchReviews reviewsTask = new FetchReviews();
+        reviewsTask.execute(mMovieId);
     }
 
     /**
@@ -123,6 +133,39 @@ public class DetailMovieActivityFragment extends Fragment {
         return trailerVideoUrls;
     }
 
+    /**
+     * Take the String representing the complete trailer video query result in JSON Format and
+     * pull out the data we need to construct the Strings needed for the wireframes.
+     *
+     * Constructor takes the JSON string and converts it
+     * into an String array containing the reviews.
+     */
+    private MovieReview[] getReviewDetailsFromJson(String reviewsJsonStr)
+            throws JSONException {
+        // These are the names of the JSON objects that need to be extracted.
+        final String MOVIEDB_RESULTS = "results";
+        final String MOVIEDB_AUTHOR = "author";
+        final String MOVIEDB_CONTENT = "content";
+
+        JSONObject reviewsJson = new JSONObject(reviewsJsonStr);
+        JSONArray reviewsJsonArray = reviewsJson.getJSONArray(MOVIEDB_RESULTS);
+        int numReviews = reviewsJsonArray.length();
+        String author;
+        String content;
+
+        MovieReview[] result = new MovieReview[numReviews];
+        for (int i=0; i<numReviews; i++) {
+            JSONObject reviewJsonObj = reviewsJsonArray.getJSONObject(i);
+            author = reviewJsonObj.getString(MOVIEDB_AUTHOR);
+            content = reviewJsonObj.getString(MOVIEDB_CONTENT);
+            Log.v(LOG_TAG, "Review data: " + author + ": "  + content);
+            MovieReview review = new MovieReview(author, content);
+            result[i] = review;
+        }
+
+        return result;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -143,6 +186,9 @@ public class DetailMovieActivityFragment extends Fragment {
 
             fetchTrailerVideos();
             mListViewTrailers = (ListView) rootView.findViewById(R.id.listview_trailers);
+
+            fetchReviews();
+            mListViewReviews = (ListView) rootView.findViewById(R.id.listview_reviews);
         }
 
         return rootView;
@@ -209,7 +255,7 @@ public class DetailMovieActivityFragment extends Fragment {
             String trailerVideoJsonString = null;
 
             mBuiltUri = Uri.parse(mMovieDetailsBaseUrl).buildUpon()
-                    .appendPath("videos")
+                    .appendPath(TRAILER_VIDEOS_PARAM)
                     .appendQueryParameter(API_KEY_PARAM, mApiKey)
                     .build();
 
@@ -247,7 +293,7 @@ public class DetailMovieActivityFragment extends Fragment {
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the traviler video data, there's no point in attemping
+                // If the code didn't successfully get the trailer video data, there's no point in attemping
                 // to parse it.
                 return null;
             } finally {
@@ -429,6 +475,116 @@ public class DetailMovieActivityFragment extends Fragment {
                 mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
                 mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
                 mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
+            } else {
+                mTitle.setText("Network Connectivity Lost");
+            }
+        }
+    }
+
+    public class FetchReviews extends AsyncTask<String, Void, MovieReview[]> {
+        private final String LOG_TAG = FetchReviews.class.getSimpleName();
+
+        @Override
+        protected MovieReview[] doInBackground(String... params) {
+            // http://api.themoviedb.org/3/movie/135397/reviews?api_key={MY_API_KEY}
+
+            // Check if there is network connectivity.
+            if (!NetworkUtil.isOnline(context)) {
+                Log.d(LOG_TAG, "No network connectivity. Nothing will happen in the background.");
+                return null;
+            }
+
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            // Will contain the raw JSON response as a string.
+            String reviewJsonString = null;
+
+            mBuiltUri = Uri.parse(mMovieDetailsBaseUrl).buildUpon()
+                    .appendPath(REVIEWS_PARAM)
+                    .appendQueryParameter(API_KEY_PARAM, mApiKey)
+                    .build();
+
+            try {
+                URL url = new URL(mBuiltUri.toString());
+                Log.v(LOG_TAG, "Built URI " + mBuiltUri.toString());
+                // Create the request to themoviedb, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                reviewJsonString = buffer.toString();
+                Log.v(LOG_TAG, "Review JSON String: " + reviewJsonString);
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the review data, there's no point in attemping
+                // to parse it.
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+
+            // Retrieve review data.
+            try {
+                MovieReview[] result = getReviewDetailsFromJson(reviewJsonString);
+                return result;
+            } catch (JSONException je) {
+                Log.e(LOG_TAG, "Error", je);
+            }
+
+            return null;
+        }
+
+        @Override
+        /**
+         * Update the detail view with the background return strings of live data.
+         */
+        protected void onPostExecute(MovieReview[] result) {
+            Log.d(LOG_TAG, "post execute result=" + result);
+            if (result != null) {
+                mReviews = result;
+                if (mReviewAdapter == null) {
+                    mReviewAdapter = new ReviewAdapter(
+                            getActivity(),
+                            new ArrayList<MovieReview>(Arrays.asList(mReviews))
+                    );
+                    mListViewReviews.setAdapter(mReviewAdapter);
+                    setListViewHeightBasedOnChildren(mListViewReviews);
+                    mReviewAdapter.notifyDataSetChanged();
+                }
             } else {
                 mTitle.setText("Network Connectivity Lost");
             }
