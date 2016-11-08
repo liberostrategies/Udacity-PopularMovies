@@ -186,9 +186,11 @@ public class DetailMovieActivityFragment extends Fragment {
 
             fetchTrailerVideos();
             mListViewTrailers = (ListView) rootView.findViewById(R.id.listview_trailers);
+            ((TextView) rootView.findViewById(R.id.txtTrailersLabel)).setText(getResources().getString(R.string.label_trailers));
 
             fetchReviews();
             mListViewReviews = (ListView) rootView.findViewById(R.id.listview_reviews);
+            ((TextView) rootView.findViewById(R.id.txtReviewsLabel)).setText(getResources().getString(R.string.label_reviews));
         }
 
         return rootView;
