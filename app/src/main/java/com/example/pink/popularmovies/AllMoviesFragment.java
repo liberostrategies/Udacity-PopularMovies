@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import com.example.pink.popularmovies.util.NetworkUtil;
 
@@ -41,11 +43,18 @@ public class AllMoviesFragment extends Fragment {
 
     private String apiKey;
 
+    /** Last movie selected. */
+    private int mPosition = ListView.INVALID_POSITION;
+
+    /** Saved instance state position key. */
+    private static final String SELECTED_KEY = "selected_position";
+
     /**
      * Adapter linking all movies data to its grid list view.
      */
     private CustomImageListAdapter mAllMoviesAdapter;
     private String[] mMovieIds = new String[0];
+    private GridView mGridViewAllMovies;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -124,10 +133,10 @@ public class AllMoviesFragment extends Fragment {
         mAllMoviesAdapter = new CustomImageListAdapter(getActivity(),
                 new ArrayList<String>());
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        GridView gridViewAllMovies = (GridView) rootView.findViewById(R.id.fragment_main_gridview);
-        gridViewAllMovies.setAdapter(mAllMoviesAdapter);
+        mGridViewAllMovies = (GridView) rootView.findViewById(R.id.fragment_main_gridview);
+        mGridViewAllMovies.setAdapter(mAllMoviesAdapter);
         // Link the adapter with the GridView.
-        gridViewAllMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridViewAllMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String movieId = mAllMoviesAdapter.getItem(position);
@@ -138,10 +147,56 @@ public class AllMoviesFragment extends Fragment {
 //
                 ((Callback) getActivity())
                         .onItemSelected(movieId);
+
+                mPosition = position;
             }
         });
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+        if (mPosition != ListView.INVALID_POSITION) {
+            mGridViewAllMovies.smoothScrollToPosition(mPosition);
+            mGridViewAllMovies.setSelection(mPosition);
+        }
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+        if (mPosition != ListView.INVALID_POSITION) {
+            mGridViewAllMovies.smoothScrollToPosition(mPosition);
+            mGridViewAllMovies.setSelection(mPosition);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+        if (mPosition != ListView.INVALID_POSITION) {
+            // TO DO: For some reason, the restored position value is correct
+            // but the grid view does not display the scroll to the selected position.
+            mGridViewAllMovies.smoothScrollToPosition(mPosition);
+            mGridViewAllMovies.setSelection(mPosition);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // Save list item, when table rotates.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

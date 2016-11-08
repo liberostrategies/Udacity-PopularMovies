@@ -5,14 +5,15 @@
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity"
+    android:id="@+id/layout_activity_main">
 
     <!--
     This layout is a two-pane layout for the Items master/detail flow.
     -->
 
     <fragment
-        android:id="@+id/fragment_forecast"
+        android:id="@+id/fragment_allmovies"
         android:name="com.example.pink.popularmovies.AllMoviesFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

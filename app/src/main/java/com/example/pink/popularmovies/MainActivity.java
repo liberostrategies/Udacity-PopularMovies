@@ -27,7 +27,8 @@ public class MainActivity extends ActionBarActivity
             // fragment transaction.
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.movie_list_item_container, new DetailMovieActivityFragment())
+                        .replace(R.id.movie_list_item_container, new DetailMovieActivityFragment(), DETAILFRAGMENT_TAG)
+                        .addToBackStack(null)
                         .commit();
             }
         } else {
@@ -36,7 +37,7 @@ public class MainActivity extends ActionBarActivity
         }
 
         AllMoviesFragment allMoviesFragment = ((AllMoviesFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_forecast));
+                .findFragmentById(R.id.fragment_allmovies));
 //        allMoviesFragment.setUseTodayLayout(!mTwoPane);
 
 //        if (BuildConfig.DEBUG) {
@@ -57,12 +58,19 @@ public class MainActivity extends ActionBarActivity
             Bundle args = new Bundle();
             args.putString(DetailMovieActivityFragment.DETAIL_MOVIE_ID, movieId);
 
-            DetailMovieActivityFragment fragment = new DetailMovieActivityFragment();
-            fragment.setArguments(args);
-
+            DetailMovieActivityFragment detailsFragment = new DetailMovieActivityFragment();
+//            DetailMovieActivityFragment detailsFragment = ((DetailMovieActivityFragment)getSupportFragmentManager()
+//                    .findFragmentById(R.id.fragment_movie_details));
+            detailsFragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_list_item_container, fragment, DETAILFRAGMENT_TAG)
+                    .replace(R.id.movie_list_item_container, detailsFragment, DETAILFRAGMENT_TAG)
+                    .addToBackStack(null)
                     .commit();
+
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_list_item_container, detailsFragment, DETAILFRAGMENT_TAG)
+//                    .addToBackStack(null)
+//                    .commit();
         } else {
 //            Intent intent = new Intent(this, DetailMovieActivityFragment.class)
 //                    .setData(movieId);
