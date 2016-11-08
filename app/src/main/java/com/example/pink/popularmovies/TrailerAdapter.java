@@ -1,6 +1,8 @@
 package com.example.pink.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,13 +39,22 @@ public class TrailerAdapter extends ArrayAdapter {
             viewHolder.btnPlayTrailerVideo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TO DO: Get url.
+                    // Get trailer video URL.
                     Log.d(LOG_TAG, "Clicked movie trailer, position=" + position + " + url = " + mTrailerVideoUrls.get(position));
-                    // TO DO: Set explicit intent? to launch browser/youtube to play video.
+                    // Set implicit intent to launch browser/youtube to play movie trailer.
+                    openWebPage(mTrailerVideoUrls.get(position));
                 }
             });
 //        }
         return convertView;
+    }
+
+    private void openWebPage(String url) {
+        Uri webpage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            getContext().startActivity(intent);
+        }
     }
 
     /**
