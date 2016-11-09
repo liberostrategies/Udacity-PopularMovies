@@ -245,9 +245,9 @@ public class AllMoviesFragment extends Fragment {
         // Sort options: most popular, highest rated
 
         protected String[] doInBackground(String... params) {
-            // http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=ec842fdd2a58bc4d60d0e08a6576cb52
-            // http://api.themoviedb.org/3/movie/popular?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
-            // http://api.themoviedb.org/3/movie/top_rated?api_key=ec842fdd2a58bc4d60d0e08a6576cb52
+            // http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key={API_KEY}
+            // http://api.themoviedb.org/3/movie/popular?api_key={API_KEY}
+            // http://api.themoviedb.org/3/movie/top_rated?api_key={API_KEY}
 
             // Check if there is network connectivity.
             if (!NetworkUtil.isOnline(getActivity().getBaseContext())) {
