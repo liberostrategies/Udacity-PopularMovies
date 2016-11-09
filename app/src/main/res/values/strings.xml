@@ -16,6 +16,8 @@
 
     <string name="label_reviews">Reviews</string>
 
+    <string name="label_favorites">Make Favorite</string>
+
     <!-- Strings related to Settings -->
     <string name="action_settings">Settings</string>
     <string name="action_sort_by">Sort By</string>

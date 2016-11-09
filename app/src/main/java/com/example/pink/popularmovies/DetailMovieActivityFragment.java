@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.example.pink.popularmovies.R.string.label_favorites;
 import static com.example.pink.popularmovies.util.ImageUtil.setImage;
 
 /**
@@ -52,6 +54,8 @@ public class DetailMovieActivityFragment extends Fragment {
     TextView mReleaseDate;
     TextView mVoteAverage;
     TextView mPlotSynopsis;
+    TextView mFavoritesHint;
+    ImageButton mbtnFavorite;
     ListView mListViewTrailers;
     ListView mListViewReviews;
 
@@ -183,6 +187,24 @@ public class DetailMovieActivityFragment extends Fragment {
             mReleaseDate = (TextView) rootView.findViewById(R.id.release_date);
             mVoteAverage = (TextView) rootView.findViewById(R.id.vote_average);
             mPlotSynopsis = (TextView) rootView.findViewById(R.id.plot_synopsis);
+            mFavoritesHint = (TextView) rootView.findViewById(R.id.txtFavoritesHint);
+            mFavoritesHint.setText(getResources().getString(label_favorites));
+            mbtnFavorite = (ImageButton) rootView.findViewById(R.id.imgbtnFavorite);
+            mbtnFavorite.setImageResource(android.R.drawable.star_off);
+            mbtnFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TO DO: Toggle as favorite to DB.
+                    // If movie is not favorite,
+                        // add it as favorite,
+                        // set the image button to star on.
+                        mbtnFavorite.setImageResource(android.R.drawable.star_on);
+                    // If movie is favorite,
+                        // set it as not a favorite,
+                        // set the image button to star off.
+                        mbtnFavorite.setImageResource(android.R.drawable.star_off);
+                }
+            });
 
             fetchTrailerVideos();
             mListViewTrailers = (ListView) rootView.findViewById(R.id.listview_trailers);
