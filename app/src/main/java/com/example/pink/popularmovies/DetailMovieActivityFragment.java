@@ -440,9 +440,36 @@ public class DetailMovieActivityFragment extends Fragment {
                     mTrailerAdapter.notifyDataSetChanged();
                 }
             } else {
-                mTitle.setText("Network Connectivity Lost");
+                Log.d(LOG_TAG, "Trailer videos retrieval was null");
+//                mTitle.setText("Network Connectivity Lost");
             }
         }
+    }
+
+    private String[] retreiveMovieDetailsFromDb(String movieId) {
+        Cursor cursorFavoriteDetails = getActivity().getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,   // projection
+                MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = ?", // "where" clause
+                new String[] {movieId},   // Values for the "where" clause
+                null    // sort order
+        );
+        List<String> resultStrs = new ArrayList<String>();
+        int countData = 5;
+        String[] result = new String[countData];
+        if (cursorFavoriteDetails.moveToFirst()) {
+            do {
+                result[IDX_TITLE] = cursorFavoriteDetails.getString(cursorFavoriteDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+                result[IDX_POSTER_PATH] = cursorFavoriteDetails.getString(cursorFavoriteDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER));
+                result[IDX_RELEASE_DATE] = cursorFavoriteDetails.getString(cursorFavoriteDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+                result[IDX_VOTE_AVERAGE] = cursorFavoriteDetails.getString(cursorFavoriteDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATING));
+                result[IDX_PLOT_SYNOPSIS] = cursorFavoriteDetails.getString(cursorFavoriteDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS));
+            } while (cursorFavoriteDetails.moveToNext());
+        }
+        for (String s : result) {
+            Log.v(LOG_TAG, "Movie data: " + s);
+        }
+        return result;
     }
 
     /**
@@ -490,7 +517,7 @@ public class DetailMovieActivityFragment extends Fragment {
             // Check if there is network connectivity.
             if (!NetworkUtil.isOnline(context)) {
                 Log.d(LOG_TAG, "No network connectivity. Nothing will happen in the background.");
-                return null;
+                return retreiveMovieDetailsFromDb(mMovieId);
             }
 
             // These two need to be declared outside the try/catch
@@ -519,7 +546,7 @@ public class DetailMovieActivityFragment extends Fragment {
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
                     // Nothing to do.
-                    return null;
+                    return retreiveMovieDetailsFromDb(mMovieId);
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -533,7 +560,7 @@ public class DetailMovieActivityFragment extends Fragment {
 
                 if (buffer.length() == 0) {
                     // Stream was empty.  No point in parsing.
-                    return null;
+                    return retreiveMovieDetailsFromDb(mMovieId);
                 }
                 movieDetailsJsonString = buffer.toString();
                 //Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
@@ -542,7 +569,7 @@ public class DetailMovieActivityFragment extends Fragment {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the popular movies data, there's no point in attemping
                 // to parse it.
-                return null;
+                return retreiveMovieDetailsFromDb(mMovieId);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -563,7 +590,7 @@ public class DetailMovieActivityFragment extends Fragment {
             } catch (JSONException je) {
                 Log.e(LOG_TAG, "Error", je);
             }
-            return null;
+            return retreiveMovieDetailsFromDb(mMovieId);
         }
 
         @Override
@@ -572,7 +599,7 @@ public class DetailMovieActivityFragment extends Fragment {
          */
         protected void onPostExecute(String[] result) {
             Log.d(LOG_TAG, "post execute result=" + result);
-            if (result != null) {
+//            if (result != null) {
                 mMovieDetails = result;
                 mTitle.setText(mMovieDetails[IDX_TITLE]);
                 String posterPath = mMovieDetails[IDX_POSTER_PATH];
@@ -581,9 +608,10 @@ public class DetailMovieActivityFragment extends Fragment {
                 mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
                 mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
                 mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
-            } else {
-                mTitle.setText("Network Connectivity Lost");
-            }
+//            } else {
+//                retreiveMovieDetailsFromDb(mMovieId);
+////                mTitle.setText("Network Connectivity Lost");
+//            }
         }
     }
 
@@ -692,7 +720,8 @@ public class DetailMovieActivityFragment extends Fragment {
                     mReviewAdapter.notifyDataSetChanged();
                 }
             } else {
-                mTitle.setText("Network Connectivity Lost");
+                Log.d(LOG_TAG, "Reviews data results retrieval was null");
+//                mTitle.setText("Network Connectivity Lost");
             }
         }
 

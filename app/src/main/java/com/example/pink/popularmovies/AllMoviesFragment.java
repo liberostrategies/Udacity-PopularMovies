@@ -1,6 +1,7 @@
 package com.example.pink.popularmovies;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.example.pink.popularmovies.data.MovieContract;
 import com.example.pink.popularmovies.util.NetworkUtil;
 
 import org.json.JSONArray;
@@ -271,6 +273,32 @@ public class AllMoviesFragment extends Fragment {
             String sortByPref = sharedPref.getString(getString(R.string.sort_by_list_key),
                     getString(R.string.pref_sort_by_default_value));
 
+            // TO DO: If sort by pref is my_favorites,
+            // query the local DB.
+            if (sortByPref.equals(getResources().getString(R.string.pref_sort_by_value_my_favorites))) {
+                Cursor cursorFavorites = getActivity().getContentResolver().query(
+                        MovieContract.MovieEntry.CONTENT_URI,
+                        null,   // projection
+                        null,   // "where" clause
+                        null,   // Values for the "where" clause
+                        null    // sort order
+                );
+                int numMovies = cursorFavorites.getCount();
+                String[] favoriteMovies = new String[numMovies];
+                int i=0;
+                if (cursorFavorites.moveToFirst()) {
+                    do {
+                        String movieId = cursorFavorites.getString(cursorFavorites.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID))
+                                + ", "
+                                + cursorFavorites.getString(cursorFavorites.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER));
+                        favoriteMovies[i] = movieId;
+                        i++;
+                    } while (cursorFavorites.moveToNext());
+                }
+                return favoriteMovies;
+            }
+
+            // Else, query the movie service...
             // Get api key.
             apiKey = BuildConfig.THEMOVIEDB_API_KEY;
 

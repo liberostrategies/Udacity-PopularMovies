@@ -28,10 +28,13 @@
     <string-array name="pref_sort_by_list_titles">
         <item>Most Popular</item>
         <item>Highest Rated</item>
+        <item>My Favorites</item>
     </string-array>
+    <string name="pref_sort_by_value_my_favorites">my_favorites</string>
     <string-array name="pref_sort_by_list_values">
         <item>popular</item>
         <item>top_rated</item>
+        <item>@string/pref_sort_by_value_my_favorites</item>
     </string-array>
 
     <!-- Example General settings -->
