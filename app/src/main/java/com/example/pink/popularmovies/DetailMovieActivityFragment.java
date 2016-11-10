@@ -3,6 +3,7 @@ package com.example.pink.popularmovies;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -176,6 +177,40 @@ public class DetailMovieActivityFragment extends Fragment {
         return result;
     }
 
+    /**
+     * If database says movie is a favorite, mark the button.
+     */
+    private void displayFavorite() {
+        if (isFavorite()) {
+            // if favorite, init display as favorite.
+            mbtnFavorite.setImageResource(android.R.drawable.star_on);
+            mbtnFavorite.setTag(BTN_FAVORITE_ON);
+        } else {
+            // If not favorite, init display as not favorite.
+            mbtnFavorite.setImageResource(android.R.drawable.star_off);
+            mbtnFavorite.setTag(BTN_FAVORITE_OFF);
+        }
+    }
+
+    /**
+     * Check database if movie is a favorite.
+     * @return
+     */
+    private boolean isFavorite() {
+        Cursor cursor = context.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null, // projection; leaving "columns" null just returns all the columns.
+                MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = " + mMovieId,
+                null,   // Values for the "where" clause
+                null    // sort order
+        );
+
+        if (cursor.moveToFirst()) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -196,8 +231,7 @@ public class DetailMovieActivityFragment extends Fragment {
             mFavoritesHint = (TextView) rootView.findViewById(R.id.txtFavoritesHint);
             mFavoritesHint.setText(getResources().getString(label_favorites));
             mbtnFavorite = (ImageButton) rootView.findViewById(R.id.imgbtnFavorite);
-            mbtnFavorite.setImageResource(android.R.drawable.star_off);
-            mbtnFavorite.setTag(BTN_FAVORITE_OFF);
+            displayFavorite();
             mbtnFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
