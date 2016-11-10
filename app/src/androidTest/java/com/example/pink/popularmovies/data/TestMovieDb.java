@@ -102,7 +102,6 @@ public class TestMovieDb extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // Create ContentValues of what you want to insert
-        // (you can use the createNorthPoleLocationValues if you wish)
         ContentValues testValues = TestUtilities.createFavoriteMovieValues();
 
         // Insert ContentValues into database and get a row ID back

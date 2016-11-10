@@ -124,7 +124,7 @@ public class MovieProvider extends ContentProvider {
             case FAVORITE_MOVIE: // Returns single row. Users "ITEM."
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = MovieContract.MovieEntry.buildFavoriteMovieUri(_id);
+                    returnUri = MovieContract.MovieEntry.buildFavoriteMovieUri(values.getAsLong(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID));
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -142,68 +142,49 @@ public class MovieProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int rowsDeleted = 0;
 
-        // Student: Start by getting a writable database
         final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
 
-        // Student: Use the uriMatcher to match the WEATHER and LOCATION URI's we are going to
-        // handle.  If it doesn't match these, throw an UnsupportedOperationException.
         final int match = sUriMatcher.match(uri);
         // Makes delete all rows return the number of rows deleted.
         if (null == selection) selection = "1";
         switch (match) {
-            // "favoritemovie/*"
-            case FAVORITE_MOVIE_WITH_MOVIE_ID: // Returns single row. Users "ITEM."
+            // "favoritemovie"
+            case FAVORITE_MOVIE: // Returns single row. Users "ITEM."
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        // Student: A null value deletes all rows.  In my implementation of this, I only notified
-        // the uri listeners (using the content resolver) if the rowsDeleted != 0 or the selection
-        // is null.
-        // Oh, and you should notify the listeners here.
         if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 
-        // Student: return the actual rows deleted
         return rowsDeleted;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-            // Student: This is a lot like the delete function.  We return the number of rows impacted
-            // by the update.
-
             int rowsUpdated = 0;
 
-            // Student: Start by getting a writable database
             final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
 
-            // Student: Use the uriMatcher to match the WEATHER and LOCATION URI's we are going to
-            // handle.  If it doesn't match these, throw an UnsupportedOperationException.
             final int match = sUriMatcher.match(uri);
             // Makes update all rows return the number of rows updated.
             if (null == selection) selection = "1";
             switch (match) {
-                // "favoritemovie/*"
-                case FAVORITE_MOVIE_WITH_MOVIE_ID: // Returns single row. Users "ITEM."
+                // "favoritemovie"
+                case FAVORITE_MOVIE: // Returns single row. Users "ITEM."
                     rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
 
-            // Student: A null value updates all rows.  In my implementation of this, I only notified
-            // the uri listeners (using the content resolver) if the rowsUpdated != 0 or the selection
-            // is null.
-            // Oh, and you should notify the listeners here.
             if (rowsUpdated != 0) {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
 
-            // Student: return the actual rows updated.
             return rowsUpdated;
     }
 }

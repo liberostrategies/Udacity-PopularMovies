@@ -114,7 +114,7 @@ public class TestUtilities extends AndroidTestCase {
             // It's useful to look at the Android CTS source for ideas on how to test your Android
             // applications.  The reason that PollingCheck works is that, by default, the JUnit
             // testing framework is not running on the main Android application thread.
-            new PollingCheck(5000) {
+            new PollingCheck(10000) {
                 @Override
                 protected boolean check() {
                     return mContentChanged;
