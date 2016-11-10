@@ -1,6 +1,8 @@
 package com.example.pink.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.pink.popularmovies.data.MovieContract;
 import com.example.pink.popularmovies.util.NetworkUtil;
 
 import org.json.JSONArray;
@@ -51,6 +54,7 @@ public class DetailMovieActivityFragment extends Fragment {
     protected final static int IDX_PLOT_SYNOPSIS = 4;
     TextView mTitle;
     ImageView mImageViewPoster;
+    String mPosterPath;
     TextView mReleaseDate;
     TextView mVoteAverage;
     TextView mPlotSynopsis;
@@ -191,18 +195,30 @@ public class DetailMovieActivityFragment extends Fragment {
             mFavoritesHint.setText(getResources().getString(label_favorites));
             mbtnFavorite = (ImageButton) rootView.findViewById(R.id.imgbtnFavorite);
             mbtnFavorite.setImageResource(android.R.drawable.star_off);
+            mbtnFavorite.setTag("star_off");
             mbtnFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String favoriteTag = (String)mbtnFavorite.getTag();
+                    Log.d(LOG_TAG, "favorite button image name = " + favoriteTag);
                     // TO DO: Toggle as favorite to DB.
-                    // If movie is not favorite,
+                    if (favoriteTag.equals("star_off")) {
+                        // If movie is not favorite,
                         // add it as favorite,
                         // set the image button to star on.
-                        mbtnFavorite.setImageResource(android.R.drawable.star_on);
-                    // If movie is favorite,
+                        if (markFavorite(true) != 0) {
+                            mbtnFavorite.setImageResource(android.R.drawable.star_on);
+                            mbtnFavorite.setTag("star_on");
+                        }
+                    } else {
+                        // If movie is favorite,
                         // set it as not a favorite,
                         // set the image button to star off.
-                        mbtnFavorite.setImageResource(android.R.drawable.star_off);
+                        if (markFavorite(false) != 0) {
+                            mbtnFavorite.setImageResource(android.R.drawable.star_off);
+                            mbtnFavorite.setTag("star_off");
+                        }
+                    }
                 }
             });
 
@@ -216,6 +232,40 @@ public class DetailMovieActivityFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private long addFavorite() {
+        ContentValues valuesFavorite = new ContentValues();
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, mMovieId);
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_POSTER, mPosterPath);
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_TITLE, mTitle.getText().toString());
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, mPlotSynopsis.getText().toString());
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mReleaseDate.getText().toString());
+        valuesFavorite.put(MovieContract.MovieEntry.COLUMN_USER_RATING, mVoteAverage.getText().toString());
+        Uri uriInserted = context.getContentResolver().insert(
+                MovieContract.MovieEntry.CONTENT_URI,
+                valuesFavorite
+        );
+        // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+        long insertedRowId = ContentUris.parseId(uriInserted);
+        return insertedRowId;
+    }
+
+    private long removeFavorite() {
+        long numDeletedRows = context.getContentResolver().delete(
+                MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = ?",
+                new String[] {mMovieId}
+        );
+        return numDeletedRows;
+    }
+
+    private long markFavorite(boolean doMark) {
+        if (doMark) {
+            return addFavorite();
+        } else {
+            return removeFavorite();
+        }
     }
 
     /**
@@ -496,6 +546,7 @@ public class DetailMovieActivityFragment extends Fragment {
                 mTitle.setText(mMovieDetails[IDX_TITLE]);
                 String posterPath = mMovieDetails[IDX_POSTER_PATH];
                 setImage(context, mImageViewPoster, posterPath);
+                mPosterPath = posterPath;
                 mReleaseDate.setText("Release Date: " + mMovieDetails[IDX_RELEASE_DATE]);
                 mVoteAverage.setText("Vote Average: " + mMovieDetails[IDX_VOTE_AVERAGE]);
                 mPlotSynopsis.setText(mMovieDetails[IDX_PLOT_SYNOPSIS]);
