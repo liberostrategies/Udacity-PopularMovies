@@ -238,9 +238,7 @@ public class DetailMovieActivityFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     String favoriteTag = (String)mbtnFavorite.getTag();
-                    Log.d(LOG_TAG, "favorite button image name = " + favoriteTag);
-                    // TO DO: Toggle as favorite to DB.
-                    if (favoriteTag.equals("star_off")) {
+                    if (favoriteTag.equals(BTN_FAVORITE_OFF)) {
                         // If movie is not favorite,
                         // add it as favorite,
                         // set the image button to star on.
