@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.example.pink.popularmovies.R.string.label_favorites;
+import static com.example.pink.popularmovies.R.string.label_favorites_off;
+import static com.example.pink.popularmovies.R.string.label_favorites_on;
 import static com.example.pink.popularmovies.util.ImageUtil.setImage;
 
 /**
@@ -178,15 +179,17 @@ public class DetailMovieActivityFragment extends Fragment {
     }
 
     /**
-     * If database says movie is a favorite, mark the button.
+     * Mark the button and label, if movie is a favorite.
      */
-    private void displayFavorite() {
-        if (isFavorite()) {
+    private void displayFavorite(boolean isFavorite) {
+        if (isFavorite) {
             // if favorite, init display as favorite.
+            mFavoritesHint.setText(getResources().getString(label_favorites_off));
             mbtnFavorite.setImageResource(android.R.drawable.star_on);
             mbtnFavorite.setTag(BTN_FAVORITE_ON);
         } else {
             // If not favorite, init display as not favorite.
+            mFavoritesHint.setText(getResources().getString(label_favorites_on));
             mbtnFavorite.setImageResource(android.R.drawable.star_off);
             mbtnFavorite.setTag(BTN_FAVORITE_OFF);
         }
@@ -196,7 +199,7 @@ public class DetailMovieActivityFragment extends Fragment {
      * Check database if movie is a favorite.
      * @return
      */
-    private boolean isFavorite() {
+    private boolean isFavoriteInDB() {
         Cursor cursor = context.getContentResolver().query(
                 MovieContract.MovieEntry.CONTENT_URI,
                 null, // projection; leaving "columns" null just returns all the columns.
@@ -229,9 +232,8 @@ public class DetailMovieActivityFragment extends Fragment {
             mVoteAverage = (TextView) rootView.findViewById(R.id.vote_average);
             mPlotSynopsis = (TextView) rootView.findViewById(R.id.plot_synopsis);
             mFavoritesHint = (TextView) rootView.findViewById(R.id.txtFavoritesHint);
-            mFavoritesHint.setText(getResources().getString(label_favorites));
             mbtnFavorite = (ImageButton) rootView.findViewById(R.id.imgbtnFavorite);
-            displayFavorite();
+            displayFavorite(isFavoriteInDB());
             mbtnFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -242,18 +244,12 @@ public class DetailMovieActivityFragment extends Fragment {
                         // If movie is not favorite,
                         // add it as favorite,
                         // set the image button to star on.
-                        if (markFavorite(true) != 0) {
-                            mbtnFavorite.setImageResource(android.R.drawable.star_on);
-                            mbtnFavorite.setTag(BTN_FAVORITE_ON);
-                        }
+                        markFavorite(true);
                     } else {
                         // If movie is favorite,
                         // set it as not a favorite,
                         // set the image button to star off.
-                        if (markFavorite(false) != 0) {
-                            mbtnFavorite.setImageResource(android.R.drawable.star_off);
-                            mbtnFavorite.setTag(BTN_FAVORITE_OFF);
-                        }
+                        markFavorite(false);
                     }
                 }
             });
@@ -297,6 +293,7 @@ public class DetailMovieActivityFragment extends Fragment {
     }
 
     private long markFavorite(boolean doMark) {
+        displayFavorite(doMark);
         if (doMark) {
             return addFavorite();
         } else {
