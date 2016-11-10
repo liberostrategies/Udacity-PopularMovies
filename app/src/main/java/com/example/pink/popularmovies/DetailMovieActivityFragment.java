@@ -60,6 +60,8 @@ public class DetailMovieActivityFragment extends Fragment {
     TextView mPlotSynopsis;
     TextView mFavoritesHint;
     ImageButton mbtnFavorite;
+    private static final String BTN_FAVORITE_ON = "star_on";
+    private static final String BTN_FAVORITE_OFF = "star_off";
     ListView mListViewTrailers;
     ListView mListViewReviews;
 
@@ -195,7 +197,7 @@ public class DetailMovieActivityFragment extends Fragment {
             mFavoritesHint.setText(getResources().getString(label_favorites));
             mbtnFavorite = (ImageButton) rootView.findViewById(R.id.imgbtnFavorite);
             mbtnFavorite.setImageResource(android.R.drawable.star_off);
-            mbtnFavorite.setTag("star_off");
+            mbtnFavorite.setTag(BTN_FAVORITE_OFF);
             mbtnFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -208,7 +210,7 @@ public class DetailMovieActivityFragment extends Fragment {
                         // set the image button to star on.
                         if (markFavorite(true) != 0) {
                             mbtnFavorite.setImageResource(android.R.drawable.star_on);
-                            mbtnFavorite.setTag("star_on");
+                            mbtnFavorite.setTag(BTN_FAVORITE_ON);
                         }
                     } else {
                         // If movie is favorite,
@@ -216,7 +218,7 @@ public class DetailMovieActivityFragment extends Fragment {
                         // set the image button to star off.
                         if (markFavorite(false) != 0) {
                             mbtnFavorite.setImageResource(android.R.drawable.star_off);
-                            mbtnFavorite.setTag("star_off");
+                            mbtnFavorite.setTag(BTN_FAVORITE_OFF);
                         }
                     }
                 }
